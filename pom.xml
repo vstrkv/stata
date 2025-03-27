@@ -20,6 +20,7 @@
   <modules>
     <module>dispatcher</module>
     <module>common-mq</module>
+    <module>node</module>
   </modules>
 
   <properties>

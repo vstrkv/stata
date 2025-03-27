@@ -1,4 +1,4 @@
-package ru.mwg.configuration;
+package ru.mwg.dispatcher.configuration;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;

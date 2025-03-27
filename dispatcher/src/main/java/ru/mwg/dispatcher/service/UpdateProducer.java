@@ -1,4 +1,4 @@
-package ru.mwg.service;
+package ru.mwg.dispatcher.service;
 
 import lombok.extern.log4j.Log4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

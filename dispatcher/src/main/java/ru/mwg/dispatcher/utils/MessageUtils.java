@@ -1,4 +1,4 @@
-package ru.mwg.utils;
+package ru.mwg.dispatcher.utils;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

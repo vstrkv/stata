@@ -1,12 +1,12 @@
-package ru.mwg.controller;
+package ru.mwg.dispatcher.controller;
 
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.mgw.model.RabbitQueue;
-import ru.mwg.service.UpdateProducer;
-import ru.mwg.utils.MessageUtils;
+import ru.mwg.dispatcher.service.UpdateProducer;
+import ru.mwg.dispatcher.utils.MessageUtils;
 
 @Component
 @Log4j
@@ -67,7 +67,7 @@ public class UpdateController {
     setView(sendMessage);
   }
 
-  private void setView(SendMessage sendMessage) {
+  public void setView(SendMessage sendMessage) {
     telegramBot.sendAnswerMessage(sendMessage);
   }
 

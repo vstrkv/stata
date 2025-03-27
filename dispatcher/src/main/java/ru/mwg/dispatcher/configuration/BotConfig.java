@@ -1,4 +1,4 @@
-package ru.mwg;
+package ru.mwg.dispatcher.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
