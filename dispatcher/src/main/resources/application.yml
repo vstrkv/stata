@@ -19,3 +19,8 @@ config:
   bot:
     name:
     token:
+  service:
+    file_storage:
+      uri: https://api.telegram.org/bot{token}/getFile?file_id={fileId}
+    file_info:
+      uri: https://api.telegram.org/file/bot{token}/{filePath}

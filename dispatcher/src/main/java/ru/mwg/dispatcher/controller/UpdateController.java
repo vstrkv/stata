@@ -78,7 +78,10 @@ public class UpdateController {
 
   private void processDocMessage(Update update) {
     updateProducer.produce(RabbitQueue.DOC_MESSAGE_UPDATE, update);
-    setFileIsReceivedView(update);
+    var sendMessage = messageUtils.generateSendMessageWithText(
+        update,
+        "Файл передан на загрузку");
+    setView(sendMessage);
   }
 
   private void processTextMessage(Update update) {
