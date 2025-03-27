@@ -1,5 +1,6 @@
 package ru.mwg.node.service;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
@@ -7,32 +8,38 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.mwg.node.entyty.AppDocument;
 import ru.mwg.node.entyty.AppUser;
+import ru.mwg.node.entyty.Player;
 import ru.mwg.node.entyty.RawData;
 import ru.mwg.node.entyty.UserState;
 import ru.mwg.node.repository.RawDataRepository;
+import ru.mwg.node.utils.XlsxFileParser;
 
 @Service
 @Log4j
 public class DocService {
 
+  private final AppUserService appUserService;
+
   private final ProducerService producerService;
 
   private final FileService fileService;
 
-  private final RawDataRepository rawDataRepository;
+  private final DownloadPlayersService downloadPlayersService;
 
-  private final AppUserService appUserService;
+  private final RawDataRepository rawDataRepository;
 
   public DocService(
       AppUserService appUserService,
       FileService fileService,
       RawDataRepository rawDataRepository,
+      DownloadPlayersService downloadPlayersService,
       ProducerService producerService
   ) {
+    this.appUserService = appUserService;
     this.producerService = producerService;
     this.fileService = fileService;
+    this.downloadPlayersService = downloadPlayersService;
     this.rawDataRepository = rawDataRepository;
-    this.appUserService = appUserService;
   }
 
   public void processDocMessage(Update update) {
@@ -43,7 +50,17 @@ public class DocService {
       return;
     }
     AppDocument appDocument = fileService.processDoc(update.getMessage());
-
+    List<Player> players;
+    try {
+      players = XlsxFileParser.getListPlayers(appDocument.getBinaryContent());
+    } catch (IOException e) {
+      sendAnswer("технические ошики при чтении файла!", chatId);
+      return;
+    } catch (RuntimeException e) {
+      sendAnswer("Файл сохранен, данные не корректны " + e.getMessage(), chatId);
+      return;
+    }
+    downloadPlayersService.exec(players);
     sendAnswer("Данные успешно сохранены!", chatId);
   }
 
