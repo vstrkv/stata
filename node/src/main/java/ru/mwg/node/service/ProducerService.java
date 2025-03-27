@@ -3,7 +3,7 @@ package ru.mwg.node.service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.mgw.model.RabbitQueue;
+import ru.mgw.commom.mq.model.RabbitQueue;
 
 @Service
 public class ProducerService {

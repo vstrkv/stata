@@ -9,8 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>ru.mwg</artifactId>
-  <groupId>ru.mwg.dispatcher</groupId>
+  <artifactId>ru.mwg.dispatcher</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <dependencies>

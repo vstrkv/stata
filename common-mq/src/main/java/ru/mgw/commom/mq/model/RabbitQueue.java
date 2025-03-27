@@ -1,4 +1,4 @@
-package ru.mgw.model;
+package ru.mgw.commom.mq.model;
 
 public class RabbitQueue {
   public static final String DOC_MESSAGE_UPDATE = "doc_message_update";

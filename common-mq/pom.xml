@@ -9,8 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>ru.mwg</artifactId>
-  <groupId>ru.mwg.common-mq</groupId>
+  <artifactId>ru.mwg.common-mq</artifactId>
   <version>1.0-SNAPSHOT</version>
 
 </project>

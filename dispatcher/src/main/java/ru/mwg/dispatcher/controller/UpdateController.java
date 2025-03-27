@@ -35,7 +35,7 @@ public class UpdateController {
       return;
     }
 
-    if (update.getMessage() != null) {
+    if (update.hasMessage()) {
       distributeMessagesByType(update);
     } else {
       log.error("Unsupported message type is received: " + update);
@@ -44,11 +44,11 @@ public class UpdateController {
 
   private void distributeMessagesByType(Update update) {
     var message = update.getMessage();
-    if (message.getText() != null) {
+    if (message.hasText()) {
       processTextMessage(update);
-    } else if (message.getDocument() != null) {
+    } else if (message.hasDocument()) {
       processDocMessage(update);
-    } else if (message.getPhoto() != null) {
+    } else if (message.hasPhoto()) {
       processPhotoMessage(update);
     } else {
       setUnsupportedMessageTypeView(update);
@@ -57,13 +57,13 @@ public class UpdateController {
 
   private void setUnsupportedMessageTypeView(Update update) {
     var sendMessage = messageUtils.generateSendMessageWithText(update,
-        "РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С‚РёРї СЃРѕРѕР±С‰РµРЅРёСЏ!");
+        "терпение мой друг");
     setView(sendMessage);
   }
 
   private void setFileIsReceivedView(Update update) {
     var sendMessage = messageUtils.generateSendMessageWithText(update,
-        "Р¤Р°Р№Р» РїРѕР»СѓС‡РµРЅ! РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ...");
+        "терпение мой друг");
     setView(sendMessage);
   }
 
