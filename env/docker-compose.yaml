@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  postgres:
+    container_name: telegram-bot
+    image: postgres:13.3
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'telegram'
+    ports:
+      - "5432:5432"
+  rabbitmq:
+    image: rabbitmq:3.10.7-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - 5672:5672 # AMQP порт
+      - 15672:15672 # Web UI порт
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
+    volumes:
+      - c:/rabbitmq_data:/var/lib/rabbitmq  # Хранение данных в корне диска C
+    restart: unless-stopped
+#volumes:
+#  rabbitmq_data: с
