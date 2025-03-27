@@ -61,17 +61,20 @@ public class DownloadPlayersService {
             .filter(x -> x.getDate().compareTo(newEntry.getKey()) == 0)
             .findFirst().orElseThrow();
         for (Player newPlayer : newEntry.getValue()) {
-          boolean isContains = Objects.nonNull(
-              getPlayer(newPlayer, mapOldPlayers.get(newEntry.getKey())));
+          Player oldPlayerInfo = getPlayer(newPlayer, mapOldPlayers.get(newEntry.getKey()));
+          boolean isContains = Objects.nonNull(oldPlayerInfo);
 
-          if (!isContains) {
+          if (isContains) {
+            checkToUpdatePlayer(oldPlayerInfo, newPlayer);
+          } else {
             Player inDatabase = playerRepository.save(newPlayer);
-            eventPlayerRepository.save(new EventPlayer(null , inDatabase, event));
+            eventPlayerRepository.save(new EventPlayer(null, inDatabase, event));
           }
+
         }
       } else {
         // todo можно добавить не только в последний ивет, но и впервый
-        if (newEntry.getKey() == null ) {
+        if (newEntry.getKey() == null) {
           continue;
         }
         List<Player> byDate = mapNewPlayers.get(newEntry.getKey());
@@ -83,14 +86,14 @@ public class DownloadPlayersService {
         for (Player p : byDate) {
           Player inDatabase = getPlayer(p, oldPlayers);
           if (Objects.isNull(inDatabase)) {
-            inDatabase =  playerRepository.save(p);
+            inDatabase = playerRepository.save(p);
           } else {
             inDatabase.setCountGame(p.getCountGame());
             inDatabase.setDateLastGame(p.getDateLastGame());
             inDatabase.setSpendMoney(p.getSpendMoney());
-            inDatabase =  playerRepository.save(inDatabase);
+            inDatabase = playerRepository.save(inDatabase);
           }
-          eventPlayerRepository.save(new EventPlayer(null , inDatabase, event));
+          eventPlayerRepository.save(new EventPlayer(null, inDatabase, event));
         }
         datesEvent.add(newEntry.getKey());
         eventList.add(event);
@@ -99,10 +102,33 @@ public class DownloadPlayersService {
 
   }
 
+  private void checkToUpdatePlayer(
+      Player oldPlayerInfo,
+      Player newPlayer
+  ) {
+    boolean flag = false;
+    if (Integer.getInteger(oldPlayerInfo.getCountGame()) > Integer
+        .getInteger(newPlayer.getCountGame())) {
+      oldPlayerInfo.setCountGame(newPlayer.getCountGame());
+      flag = true;
+    }
+    if (oldPlayerInfo.getDateLastGame().isAfter(newPlayer.getDateLastGame())) {
+      oldPlayerInfo.setDateLastGame(newPlayer.getDateLastGame());
+      flag = true;
+    }
+    if (oldPlayerInfo.getSpendMoney() > newPlayer.getSpendMoney()) {
+      oldPlayerInfo.setSpendMoney(newPlayer.getSpendMoney());
+      flag = true;
+    }
+    if (flag) {
+      playerRepository.save(oldPlayerInfo);
+    }
+  }
+
 
   //todo optimise
   private Player getPlayer(Player player, List<Player> oldPlayers) {
-    if(oldPlayers == null) {
+    if (oldPlayers == null) {
       return null;
     }
     for (Player old : oldPlayers) {
