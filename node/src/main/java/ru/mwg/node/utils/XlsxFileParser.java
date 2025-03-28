@@ -41,15 +41,16 @@ public class XlsxFileParser {
         } else if (count == 4) {
           e.setDateCreate(getValueStr(cell));
         } else if (count == 5) {
-          e.setDateFirstPlay(getValueStr(cell));
+          String s = getValueStr(cell);
+          if (s != null && s.length() > 0) {
+            e.setDateFirstPlay(LocalDate.parse(s));
+          }
         } else if (count == 6) {
           e.setTypeGame(getValueStr(cell));
         } else if (count == 7) {
           String s = getValueStr(cell);
-//                    Date vaoueStr = cell.getDateCellValue();
           if (s != null && s.length() > 0) {
             e.setDateLastGame(LocalDate.parse(s));
-            //vaoueStr.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
           }
         } else if (count == 8) {
           e.setTgName(getValueStr(cell));

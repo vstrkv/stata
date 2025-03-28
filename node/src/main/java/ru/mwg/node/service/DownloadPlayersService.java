@@ -54,6 +54,9 @@ public class DownloadPlayersService {
     Map<LocalDate, List<Player>> mapNewPlayers = getMap(newPlayers);
     Map<LocalDate, List<Player>> mapOldPlayers = getMap(oldPlayers);
 
+    List<Player> playersToAddFirstEvent = new ArrayList<>();
+    List<EventPlayer> eventPlayerToAddFirstEvent = new ArrayList<>();
+
     for (Map.Entry<LocalDate, List<Player>> newEntry : mapNewPlayers.entrySet()) {
       if (datesEvent.contains(newEntry.getKey())) {
         // в старых данных уже есть такой ивент, нужду из новых данных добавить не достающие
@@ -68,7 +71,7 @@ public class DownloadPlayersService {
             checkToUpdatePlayer(oldPlayerInfo, newPlayer);
           } else {
             Player inDatabase = playerRepository.save(newPlayer);
-            eventPlayerRepository.save(new EventPlayer(null, inDatabase, event));
+            eventPlayerToAddFirstEvent.add(new EventPlayer(null, inDatabase, event));
           }
 
         }
@@ -87,18 +90,34 @@ public class DownloadPlayersService {
           Player inDatabase = getPlayer(p, oldPlayers);
           if (Objects.isNull(inDatabase)) {
             inDatabase = playerRepository.save(p);
+            if (newEntry.getKey().compareTo(inDatabase.getDateFirstPlay()) != 0) {
+              playersToAddFirstEvent.add(inDatabase);
+            }
           } else {
             inDatabase.setCountGame(p.getCountGame());
             inDatabase.setDateLastGame(p.getDateLastGame());
             inDatabase.setSpendMoney(p.getSpendMoney());
             inDatabase = playerRepository.save(inDatabase);
           }
-          eventPlayerRepository.save(new EventPlayer(null, inDatabase, event));
+          eventPlayerToAddFirstEvent.add(new EventPlayer(null, inDatabase, event));
         }
         datesEvent.add(newEntry.getKey());
         eventList.add(event);
       }
     }
+
+    for (Player p : playersToAddFirstEvent) {
+      Event firstEvent = eventList.stream()
+          .filter(x -> x.getDate().compareTo(p.getDateFirstPlay()) == 0)
+          .findFirst()
+          .orElse(
+              eventRepository.save(Event.builder()
+                  .date(p.getDateFirstPlay())
+                  .build())
+          );
+      eventPlayerToAddFirstEvent.add(new EventPlayer(null, p, firstEvent));
+    }
+    eventPlayerRepository.saveAll(eventPlayerToAddFirstEvent);
 
   }
 
@@ -107,10 +126,15 @@ public class DownloadPlayersService {
       Player newPlayer
   ) {
     boolean flag = false;
-    if (Integer.getInteger(oldPlayerInfo.getCountGame()) > Integer
-        .getInteger(newPlayer.getCountGame())) {
-      oldPlayerInfo.setCountGame(newPlayer.getCountGame());
-      flag = true;
+    if (Objects.nonNull(oldPlayerInfo.getCountGame())
+        && !oldPlayerInfo.getCountGame().isEmpty()
+        && Objects.nonNull(newPlayer.getCountGame())
+        && !newPlayer.getCountGame().isEmpty()) {
+      if (Double.parseDouble(oldPlayerInfo.getCountGame()) >
+          Double.parseDouble(newPlayer.getCountGame())) {
+        oldPlayerInfo.setCountGame(newPlayer.getCountGame());
+        flag = true;
+      }
     }
     if (oldPlayerInfo.getDateLastGame().isAfter(newPlayer.getDateLastGame())) {
       oldPlayerInfo.setDateLastGame(newPlayer.getDateLastGame());

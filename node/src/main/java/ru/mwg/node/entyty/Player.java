@@ -35,7 +35,7 @@ public class Player {
 
   private String dateCreate;
 
-  private String dateFirstPlay;
+  private LocalDate dateFirstPlay;
 
   private String typeGame;
 

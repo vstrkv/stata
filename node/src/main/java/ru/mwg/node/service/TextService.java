@@ -1,14 +1,18 @@
 package ru.mwg.node.service;
 
 
+import java.util.Objects;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.mwg.node.entyty.AppUser;
+import ru.mwg.node.entyty.Player;
 import ru.mwg.node.entyty.RawData;
 import ru.mwg.node.entyty.ServiceCommand;
 import ru.mwg.node.entyty.UserState;
+import ru.mwg.node.repository.EventPlayerRepository;
+import ru.mwg.node.repository.PlayerRepository;
 import ru.mwg.node.repository.RawDataRepository;
 
 @Service
@@ -21,13 +25,21 @@ public class TextService {
 
   private final RawDataRepository rawDataRepository;
 
+  private final EventPlayerRepository eventPlayerRepository;
+
+  private final PlayerRepository playerRepository;
+
   public TextService(
       AppUserService appUserService,
       RawDataRepository rawDataRepository,
+      EventPlayerRepository eventPlayerRepository,
+      PlayerRepository playerRepository,
       ProducerService producerService
   ) {
     this.appUserService = appUserService;
     this.rawDataRepository = rawDataRepository;
+    this.eventPlayerRepository = eventPlayerRepository;
+    this.playerRepository = playerRepository;
     this.producerService = producerService;
   }
 
@@ -67,6 +79,11 @@ public class TextService {
       return "Временно недоступно.";
     } else if (ServiceCommand.HELP.equals(cmd)) {
       return help();
+    } else if (ServiceCommand.STATA.equals(cmd)) {
+      if ("vstrkv_v".equals(appUser.getUsername())) {
+        return getStatistic();
+      }
+      return "Информация ограничена";
     } else if (ServiceCommand.START.equals(cmd)) {
       return "Приветствую! Чтобы посмотреть список доступных команд введите /help";
     } else {
@@ -74,10 +91,29 @@ public class TextService {
     }
   }
 
+  private String getStatistic() {
+    Long sumAllEvent =
+        playerRepository.findAll().stream()
+            .map(Player::getCountEvent)
+            .filter(Objects::nonNull)
+            .mapToLong(x -> x).sum();
+    int sumRegisterEvent = eventPlayerRepository.findAll().size();
+    try {
+      return "Всего Ивентов: " + sumAllEvent +
+          "\nЗарегистрировано Ивентов: " + sumRegisterEvent +
+          "\nОтношение: " + (sumRegisterEvent * 100L / sumAllEvent);
+
+    } catch (Exception e) {
+      return "Всего Ивентов: " + sumAllEvent + "\nЗарегистрировано Ивентов: " + sumRegisterEvent;
+    }
+
+  }
+
 
   private String help() {
     return "Список доступных команд:\n"
         + "/cancel - отмена выполнения текущей команды;\n"
+        + "/statistic - процент заполнения данных;\n"
         + "/registration - регистрация пользователя.";
   }
 
